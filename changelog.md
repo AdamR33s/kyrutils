@@ -34,3 +34,6 @@
 
 # kyrUtils v2.0.3
 - Readme updated
+
+# kyrUtils v2.0.4
+- Readme updated
