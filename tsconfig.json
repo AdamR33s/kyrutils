@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "module": "nodenext",
+    "strict": true,
+    "noEmit": true,
+    "noImplicitAny": true,
+    "target": "es2022",
+    "moduleResolution": "nodenext",
+    "types": ["node"]
+  },
+  "include": ["**/*.ts"]
+}
