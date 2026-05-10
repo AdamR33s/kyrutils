@@ -1,8 +1,4 @@
-///////////////////////
-/// Tar Zst Builder ///
-///////////////////////
-
-README
+# Tar Zst Builder 
 Import this builder into a local deployment script for projects to walk relevant (and optional) dir's and collect project files into a .tar.zst archive. 
 
 This script assume's it'll be executed from inside the `./dist` folder of your project. It will automatically walk and collect all files and dir's from `./dist` maintaining their structure. 
@@ -18,11 +14,7 @@ The options Additional Dirs list has no filters and will walk and collect everyt
 The override env option will grab any .env file from the project base dir when selected.
 
 
-
-/////////////////////////
-/// PROJECT STRUCTURE ///
-/////////////////////////
-
+## PROJECT STRUCTURE
 Described here is the typical suggested structure for use of this tool. 
 
 Following this will allow you to import and use the tarZstBuilder script for instant server deployment via a tar.zst file.

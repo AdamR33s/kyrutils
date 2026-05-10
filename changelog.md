@@ -21,3 +21,6 @@
 
 # kyrUtils v2.0.0
 - Package.json update
+
+# kyrUtils v2.0.0
+- Readme update
