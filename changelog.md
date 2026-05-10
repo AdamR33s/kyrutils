@@ -31,3 +31,6 @@
 - Function names updated
 - Function descriptions updated
 - Readme updated
+
+# kyrUtils v2.0.3
+- Readme updated
