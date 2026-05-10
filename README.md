@@ -3,7 +3,8 @@ This library contains a number of "utility" functions used in KYR projects. Plea
 
 I've listed the functions available and their general usage below.
 
-## Tar(Zst)Builder 
+
+### Tar(Zst)Builder 
 This builder function is used to walk relevant (and optional) project dir's, collecting project files into a .tar.zst archive. 
 
 This script assumes it'll be executed from inside the `./dist` folder of your project. Use the tarBuildOptions class in your build script to control the builder. 
@@ -18,8 +19,7 @@ The optional Prisma Dir will only select files with the .prisma extention.
 The optional WebServer filter will ignore any files ending with `*.ts` - This is to walk and collect all templates, static resources and css files.
 The options Additional Dirs list has no filters and will walk and collect everything from all dir's in this list.
 
-
-### Tar(Zst)Builder - Project Structure
+#### Tar(Zst)Builder - Project Structure
 Described here is the typical suggested structure for use of this tool. 
 
 Following this will allow you to import and use the tarZstBuilder script for instant server deployment via a tar.zst file.
@@ -31,8 +31,6 @@ projectRoot/primsa ->           Static prisma files for ORM usage (schema etc.) 
 projectRoot/src ->              Local deploy script (imports this and compiles to `./dist`) & project TS files
 projectRoot/src/webServer ->    SubFolder for Webserver.ts files, /views, /static dirs  *OPTIONAL*
 
-## Tools
-General/Generic Tools
 
 ### getRandUUID
 Return a UUID from the Crypto library

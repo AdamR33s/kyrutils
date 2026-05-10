@@ -30,3 +30,4 @@
 - Readme updated
 - Function names updated
 - Function descriptions updated
+- Readme updated
