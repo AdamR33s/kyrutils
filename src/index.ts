@@ -3,11 +3,11 @@ export type { TarBuildOptions } from "./kyrTarBuilder.js";
 export { buildTar } from "./kyrTarBuilder.js";
 export {
   getRandUuid,
-  sleep as secondsDelay,
-  minutesElapsed as aboveMinutesDifferenceCheck,
-  hoursElapsed as aboveHoursDifferenceCheck,
+  sleep,
+  minutesElapsed,
+  hoursElapsed,
   shuffleArray,
   chooseRandomFromArray,
   dateTimeUIString,
-  dateTimeFsString,
+  dateTimeFSString,
 } from "./kyrTools.js";

@@ -108,7 +108,7 @@ export async function dateTimeUIString(dateInput: string | number | Date): Promi
  * @param dateInput A string, number(timestamp) or Date
  * @returns A filesystem friendly timestamp string
  */
-export async function dateTimeFsString(dateInput: string | number | Date): Promise<string> {
+export async function dateTimeFSString(dateInput: string | number | Date): Promise<string> {
   const date = new Date(dateInput);
   if (isNaN(date.getTime())) {
     throw new Error(`Invalid date passed to dateString(): ${dateInput}`);

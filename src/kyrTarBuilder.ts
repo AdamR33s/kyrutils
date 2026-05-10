@@ -9,11 +9,11 @@ import path from "path";
  * The options object for config of 'buildTar'
  */
 export type TarBuildOptions = {
+  overrideEnv: boolean;
   dataDir?: string;
   prismaDir?: string;
   webServerDir?: string;
   additionalDirs?: string[];
-  overrideEnv: boolean;
 };
 
 const baseDir = "./";
@@ -40,11 +40,12 @@ async function walkDir(
 
 /**
  * Build a .tar and .tar.zst archive for "typical" npm/node projects for server uploads (suggested project structure found in readme.md). Use the 'TarBuildOptions' class to walk a list of dirs (some preset, and an optional list arguement). The walkDir function will accept an arrow filter of type boolean.
+ * @param overrideEnv Collect any .env file from the project base dir
  * @param dataDir Suggested additional dir for static project data files such as YAML
  * @param prismaDir Suggested additional dir for static prisma data files such as schema
  * @param webServerDir Suggested additional dir for static WebServer data files such as css, templates etc.
  * @param additionalDirs List any extra dirs for filterless collection of everything contained
- * @param overrideEnv Collect any .env file from the project base dir
+
  * @returns Void - A .tar and a .tar.zst will be written into the base project dir as `project.tar` & `project.tar.zst` respectively
  */
 export async function buildTar(buildTarOptions: TarBuildOptions): Promise<void> {
@@ -53,7 +54,6 @@ export async function buildTar(buildTarOptions: TarBuildOptions): Promise<void> 
 
   const projFiles = await walkDir(baseDir, (path, dirEnt) => {
     if (dirEnt.isDirectory() && dirEnt.name === "node_modules") return false;
-    if (dirEnt.name.toLowerCase().includes(`deploy`)) return false;
     if (dirEnt.isFile() && dirEnt.name.toLocaleLowerCase().includes(`package`)) return true;
     if (buildTarOptions.overrideEnv) {
       if (dirEnt.isFile() && dirEnt.name.includes(`.env`)) return true;
@@ -66,28 +66,49 @@ export async function buildTar(buildTarOptions: TarBuildOptions): Promise<void> 
     await fs.cp(filePath, targetPath);
   }
 
-  const distFiles = await walkDir(distDir, (path, dirEnt) => !dirEnt.name.toLowerCase().includes(`deploy`));
+  const distFiles = await walkDir(distDir, (path, dirEnt) => {
+    if (dirEnt.isFile() && dirEnt.name.toLowerCase().includes(`deploy`)) return false;
+    return true;
+  });
   for (const filePath of distFiles) {
     const fileName = path.relative(distDir, filePath);
     const targetPath = path.join(sudoArchDir, fileName);
     await fs.cp(filePath, targetPath);
   }
+
   if (buildTarOptions.dataDir !== undefined) {
-    const dataFiles = await walkDir(buildTarOptions.dataDir);
+    const dataFiles = await walkDir(buildTarOptions.dataDir, (path, dirEnt) => {
+      if (
+        !dirEnt.name.toLowerCase().endsWith(`.yml`) ||
+        !dirEnt.name.toLowerCase().endsWith(`.yaml`) ||
+        !dirEnt.name.toLowerCase().endsWith(`.json`) ||
+        !dirEnt.name.toLowerCase().endsWith(`.xml`) ||
+        !dirEnt.name.toLowerCase().endsWith(`.ini`) ||
+        !dirEnt.name.toLowerCase().endsWith(`.csv`)
+      ) {
+        return false;
+      }
+      return true;
+    });
     for (const filePath of dataFiles) {
       const fileName = path.relative(buildTarOptions.dataDir, filePath);
       const targetPath = path.join(sudoArchDir, `data`, fileName);
       await fs.cp(filePath, targetPath);
     }
   }
+
   if (buildTarOptions.prismaDir !== undefined) {
-    const prismaFiles = await walkDir(buildTarOptions.prismaDir);
+    const prismaFiles = await walkDir(buildTarOptions.prismaDir, (path, dirEnt) => {
+      if (dirEnt.isFile() && dirEnt.name.endsWith(`.prisma`)) return true;
+      return false;
+    });
     for (const filePath of prismaFiles) {
       const fileName = path.relative(buildTarOptions.prismaDir, filePath);
       const targetPath = path.join(sudoArchDir, `prisma`, fileName);
       await fs.cp(filePath, targetPath);
     }
   }
+
   if (buildTarOptions.webServerDir !== undefined) {
     const webServerFiles = await walkDir(
       buildTarOptions.webServerDir,
@@ -99,6 +120,7 @@ export async function buildTar(buildTarOptions: TarBuildOptions): Promise<void> 
       await fs.cp(filePath, targetPath);
     }
   }
+
   if (buildTarOptions.additionalDirs !== undefined) {
     for (const dir of buildTarOptions.additionalDirs) {
       const additionalCollection = await walkDir(dir);

@@ -1,9 +1,12 @@
 {
   "name": "kyrutils",
   "exports": {
-    ".": "./dist/index.js"
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
   },
-  "version": "2.0.1",
+  "version": "2.0.2",
   "type": "module",
   "files": [
     "dist"

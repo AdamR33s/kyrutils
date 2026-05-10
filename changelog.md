@@ -24,3 +24,9 @@
 
 # kyrUtils v2.0.1
 - Readme update
+
+# kyrUtils v2.0.2
+- Fixed import and require definitions
+- Readme updated
+- Function names updated
+- Function descriptions updated
