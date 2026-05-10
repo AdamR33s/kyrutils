@@ -18,3 +18,6 @@
 - Moved to "entrypoint" file structure
 - Cleaned dependencies
 - Added env override option to tar builder
+
+# kyrUtils v2.0.0
+- Package.json update
