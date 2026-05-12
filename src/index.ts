@@ -3,7 +3,7 @@ export type { TarBuildOptions } from "./kyrTarBuilder.js";
 export { buildTar } from "./kyrTarBuilder.js";
 export {
   getRandUuid,
-  sleep,
+  sleepForSeconds,
   minutesElapsed,
   hoursElapsed,
   shuffleArray,

@@ -1,0 +1,7 @@
+allowBuilds:
+  "@prisma/client": false
+  "@prisma/engines": false
+  cpu-features: false
+  esbuild: true
+  prisma: false
+  ssh2: true

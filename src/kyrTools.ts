@@ -10,10 +10,10 @@ export function getRandUuid(): string {
 
 /**
  *
- * @param seconds The number of seconds wanted as wait time
- * @returns Void
+ * @param seconds The number of seconds wanted as wait time (Always call with await!)
+ * @returns Promise<Void>
  */
-export function sleep(seconds: number): Promise<void> {
+export function sleepForSeconds(seconds: number): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, seconds * 1000);
   });
@@ -81,7 +81,7 @@ export function chooseRandomFromArray<T>(array: Array<T>): T | null {
  * @param dateInput A string, number(timestamp) or Date
  * @returns A UI friendly timestamp string
  */
-export async function dateTimeUIString(dateInput: string | number | Date): Promise<string> {
+export function dateTimeUIString(dateInput: string | number | Date): string {
   const date = new Date(dateInput);
   if (isNaN(date.getTime())) {
     throw new Error(`Invalid date passed to dateString(): ${dateInput}`);
@@ -108,7 +108,7 @@ export async function dateTimeUIString(dateInput: string | number | Date): Promi
  * @param dateInput A string, number(timestamp) or Date
  * @returns A filesystem friendly timestamp string
  */
-export async function dateTimeFSString(dateInput: string | number | Date): Promise<string> {
+export function dateTimeFSString(dateInput: string | number | Date): string {
   const date = new Date(dateInput);
   if (isNaN(date.getTime())) {
     throw new Error(`Invalid date passed to dateString(): ${dateInput}`);

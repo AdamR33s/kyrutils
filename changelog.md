@@ -40,3 +40,9 @@
 # kyrUtils v2.0.5
 - Function names updated
 - Function descriptions updated
+
+# kyrUtils v2.0.6
+- Internal package manager changed to PNPM
+- Removed async from date functions
+- Removed async from tarBuild (refactored async compression function)
+- Added PNPM compatibility to buildTar filters (pnpm-lock.yaml & pnpm-workspace.yaml)
