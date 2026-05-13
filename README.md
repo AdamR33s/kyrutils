@@ -10,8 +10,7 @@ This builder function is used to walk relevant (and optional) project directorie
 This script assumes it will be executed from inside the `./dist` folder of your project. Use the `TarBuildOptions` class in your build script to control config. Some of the preset directory options have filters in place, there's also room for additional directories to be walked indiscriminately.
 ```text
 FILTERS
-The base directory walker will include package files (Note: The override env option will grab any .env file from the project base Dir when selected.)
-The `./dist` directory walker has a default filter to ignore any scripts containing the string `deploy` - To stop server uploads of compiled deploy scripts.
+The `./dist` directory walker has no filters and will walk and collect everything from all directories in this list. (Copy package files here)
 The optional Data directory walker will filter any ( .yml | .yaml | .json | .xml | .ini | .csv ) files.
 The optional Prisma directory walker will only select files with the .prisma extension.
 The optional WebServer directory walker will ignore any files ending with `*.ts` - This is to walk and collect all templates, static resources and css files.
@@ -128,3 +127,6 @@ Return a filesystem-friendly date-stamp ("en-gb") from a String | Number | Date
 
 ### kyrUtils v2.0.9
 - /prisma now collected indiscriminately 
+
+### kyrUtils v2.1.0
+- Removed projFiles collection (move package files to dist through your script!)

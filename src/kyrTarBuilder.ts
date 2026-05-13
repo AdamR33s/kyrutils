@@ -39,10 +39,10 @@ function walkDir(
 }
 
 /**
- * Build a .tar and .tar.zst archive for "typical" npm/node projects for server uploads (suggested project structure found in readme.md). Use the 'TarBuildOptions' class to walk a list of dirs (some preset, and an optional list arguement). The walkDir function will accept an arrow filter of type boolean.
+ * Build a .tar and .tar.zst archive for "typical" npm/node projects for server uploads (suggested project structure found in readme.md). Use the 'TarBuildOptions' class to walk a list of dirs (some preset, and an optional list arguement). The /dist directory will be walked and collected indiscriminately
  * @param overrideEnv Collect any .env file from the project base dir
- * @param dataDir Suggested additional dir for static project data files such as YAML
- * @param prismaDir Suggested additional dir for static prisma data files such as schema
+ * @param dataDir Suggested additional dir for static project data files such as yaml, json, xml etc.
+ * @param prismaDir Suggested additional dir for static prisma data files such as schema and migrations folder
  * @param webServerDir Suggested additional dir for static WebServer data files such as css, templates etc.
  * @param additionalDirs List any extra dirs for filterless collection of everything contained
 
@@ -51,29 +51,7 @@ function walkDir(
 export function buildTar(buildTarOptions: TarBuildOptions): Promise<void> {
   fs.rmSync(sudoArchDir, { recursive: true, force: true });
   fs.mkdirSync(sudoArchDir, { recursive: true });
-
-  const projFiles = walkDir(baseDir, (path, dirEnt) => {
-    if (dirEnt.isDirectory() && dirEnt.name === "node_modules") return false;
-    if (
-      (dirEnt.isFile() && dirEnt.name.toLocaleLowerCase() === `package.json`) ||
-      dirEnt.name.toLocaleLowerCase() === `pnpm-lock.yaml` ||
-      dirEnt.name.toLocaleLowerCase() === `prisma.config.ts` ||
-      dirEnt.name.toLocaleLowerCase() === `pnpm-workspace.yaml`
-    )
-      return true;
-    if (buildTarOptions.overrideEnv) {
-      if (dirEnt.isFile() && dirEnt.name.includes(`.env`)) return true;
-    }
-    return false;
-  });
-  for (const filePath of projFiles) {
-    const fileName = path.relative(baseDir, filePath);
-    const targetPath = path.join(sudoArchDir, fileName);
-    fs.cpSync(filePath, targetPath);
-  }
-
   const distFiles = walkDir(distDir, (path, dirEnt) => {
-    if (dirEnt.isFile() && dirEnt.name.toLowerCase().includes(`deploy`)) return false;
     return true;
   });
   for (const filePath of distFiles) {
