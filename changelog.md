@@ -49,3 +49,6 @@
 
 # kyrUtils v2.0.7
 - Added support for new Prisma versions 7.x
+
+# kyrUtils v2.0.8
+- Bug fix for Prisma versions 7.x (Grabbing prisma.config.ts) from project root
