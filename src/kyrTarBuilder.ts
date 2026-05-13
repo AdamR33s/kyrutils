@@ -57,6 +57,7 @@ export function buildTar(buildTarOptions: TarBuildOptions): Promise<void> {
     if (
       (dirEnt.isFile() && dirEnt.name.toLocaleLowerCase() === `package.json`) ||
       dirEnt.name.toLocaleLowerCase() === `pnpm-lock.yaml` ||
+      dirEnt.name.toLocaleLowerCase() === `prisma.config.ts` ||
       dirEnt.name.toLocaleLowerCase() === `pnpm-workspace.yaml`
     )
       return true;

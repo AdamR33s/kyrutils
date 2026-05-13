@@ -46,3 +46,6 @@
 - Removed async from date functions
 - Removed async from tarBuild (refactored async compression function)
 - Added PNPM compatibility to buildTar filters (pnpm-lock.yaml & pnpm-workspace.yaml)
+
+# kyrUtils v2.0.7
+- Added support for new Prisma versions 7.x
