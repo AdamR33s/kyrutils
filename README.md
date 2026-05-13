@@ -125,3 +125,6 @@ Return a filesystem-friendly date-stamp ("en-gb") from a String | Number | Date
 ### kyrUtils v2.0.8
 - Bug fix for Prisma versions 7.x (Grabbing prisma.config.ts) from project root
 - Version notes added to readme
+
+### kyrUtils v2.0.9
+- /prisma now collected indiscriminately 

@@ -105,8 +105,7 @@ export function buildTar(buildTarOptions: TarBuildOptions): Promise<void> {
 
   if (buildTarOptions.prismaDir !== undefined) {
     const prismaFiles = walkDir(buildTarOptions.prismaDir, (path, dirEnt) => {
-      if (dirEnt.isFile() && dirEnt.name.endsWith(`.prisma`)) return true;
-      return false;
+      return true;
     });
     for (const filePath of prismaFiles) {
       const fileName = path.relative(buildTarOptions.prismaDir, filePath);
