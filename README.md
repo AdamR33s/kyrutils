@@ -142,3 +142,6 @@ V3.0.0 - I've removed the fixed dir options for dist and made this optional like
 
 ### kyrUtils v3.0.1
 - adjusted the collection for additional dirs to preserve parent folder provided in path when building the archive
+
+### kyrUtils v3.1.1
+- Added generic KyrApiResponse type for wrapping custom API responses
