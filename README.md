@@ -84,6 +84,9 @@ Return a filesystem-friendly date-stamp ("en-gb") from a String | Number | Date
 
 # PREVIOUS VERSION NOTES
 
+### kyrUtils v3.4.1
+- Export bug fix
+
 ### kyrUtils v3.4.0
 - Added KYRApiConnectionsManager class for storing & controlling KyrApiConnection instances
 
