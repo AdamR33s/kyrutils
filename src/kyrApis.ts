@@ -59,12 +59,12 @@ export class KyrApiManager {
    *  @param targetURL The target route of the API
    *  @returns A KyrApiResponse<T> object standardized for KYR API's
    */
-  async getRequest(apiName: string, targetURL: URL): Promise<KyrApiResponse<null>> {
+  async getRequest(apiName: string, targetRoute: string): Promise<KyrApiResponse<null>> {
     const api = this.apis.get(apiName);
     if (!api) {
       return buildKyrApiResponseObj({ error: `${apiName} not found!` });
     }
-    return await api.getRequest(targetURL);
+    return await api.getRequest(targetRoute);
   }
 
   /**
@@ -73,12 +73,16 @@ export class KyrApiManager {
    *  @param targetURL The target route of the API
    *  @returns A KyrApiResponse<T> object standardized for KYR API's
    */
-  async postRequest(apiName: string, targetURL: URL, reqBody?: Record<string, string>): Promise<KyrApiResponse<null>> {
+  async postRequest(
+    apiName: string,
+    targetRoute: string,
+    reqBody?: Record<string, string>,
+  ): Promise<KyrApiResponse<null>> {
     const api = this.apis.get(apiName);
     if (!api) {
       return buildKyrApiResponseObj({ error: `${apiName} not found!` });
     }
-    return await api.postRequest(targetURL, reqBody);
+    return await api.postRequest(targetRoute, reqBody);
   }
 
   /**
@@ -128,10 +132,11 @@ class KyrApi {
    *  @param targetURL The target URL for the request
    *  @returns A KyrApiResponse<T> object standardized for KYR API's
    */
-  async getRequest<T>(targetURL: URL): Promise<KyrApiResponse<T>> {
+  async getRequest<T>(targetRoute: string): Promise<KyrApiResponse<T>> {
     if (!this.connectionIsActive) {
       return buildKyrApiResponseObj({ error: `${this.config.name} not active` });
     }
+    const targetURL = new URL(targetRoute, this.config.address);
     let response: Response;
     try {
       response = await fetch(targetURL, {
@@ -156,10 +161,11 @@ class KyrApi {
    * @param targetURL The target URL for the request
    * @returns A KyrApiResponse<T> object standardized for KYR API's
    */
-  async postRequest<T>(targetURL: URL, reqBody?: Record<string, string>): Promise<KyrApiResponse<T>> {
+  async postRequest<T>(targetRoute: string, reqBody?: Record<string, string>): Promise<KyrApiResponse<T>> {
     if (!this.connectionIsActive) {
       return buildKyrApiResponseObj({ error: `${this.config.name} not active` });
     }
+    const targetURL = new URL(targetRoute, this.config.address);
     let response: Response;
     try {
       response = await fetch(targetURL, {
