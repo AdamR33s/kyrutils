@@ -1,11 +1,35 @@
 import { sleepForSeconds } from "./kyrTools.js";
 
+// ---------
+// - TYPES -
+// ---------
+/**
+ * Represents a repsonse object from KYR API's
+ */
+export type KyrApiResponse<T> = {
+  message: string | undefined;
+  error: string | undefined;
+  data: T | undefined;
+};
+
+/**
+ * Represents a config object for the API Manager
+ */
+export type KyrApiConfig = {
+  name: string;
+  address: URL;
+  accessKey: string;
+  getReqTimeoutMs: number;
+  postReqTimeoutMs: number;
+  maxConnectAttempts: number;
+};
+
 // ----------------------------
-// - CONNECTION MANAGER CLASS -
+// - API MANAGER CLASS -
 // ----------------------------
 /**
  * @class Represents a connection manager for handing KyrApiConnection instances
- * @param connections A map for storing connection instances by their name
+ * @param apis A private map for storing connection instances by their name
  */
 export class KyrApiManager {
   private apis = new Map<string, KyrApi>();
@@ -15,23 +39,9 @@ export class KyrApiManager {
    *  @param This requires an Object containing all the API Details
    *  @returns void
    */
-  addApi({
-    apiName,
-    apiAddress,
-    apiKey,
-    getTimeoutMs,
-    postTimeoutMs,
-    maxConnectAttemps,
-  }: {
-    apiName: string;
-    apiAddress: URL;
-    apiKey: string;
-    getTimeoutMs: number;
-    postTimeoutMs: number;
-    maxConnectAttemps: number;
-  }): void {
-    const newConnection = new KyrApi(apiName, apiAddress, apiKey, getTimeoutMs, postTimeoutMs, maxConnectAttemps);
-    this.apis.set(newConnection.name, newConnection);
+  addApi(newApiCfg: KyrApiConfig): void {
+    const newConnection = new KyrApi(newApiCfg);
+    this.apis.set(newApiCfg.name, newConnection);
   }
 
   /**
@@ -50,11 +60,11 @@ export class KyrApiManager {
    *  @returns A KyrApiResponse<T> object standardized for KYR API's
    */
   async getRequest(apiName: string, targetURL: URL): Promise<KyrApiResponse<null>> {
-    const connection = this.apis.get(apiName);
-    if (!connection) {
+    const api = this.apis.get(apiName);
+    if (!api) {
       return buildKyrApiResponseObj({ error: `${apiName} not found!` });
     }
-    return await connection.getRequest(targetURL);
+    return await api.getRequest(targetURL);
   }
 
   /**
@@ -64,27 +74,11 @@ export class KyrApiManager {
    *  @returns A KyrApiResponse<T> object standardized for KYR API's
    */
   async postRequest(apiName: string, targetURL: URL, reqBody?: Record<string, string>): Promise<KyrApiResponse<null>> {
-    const connection = this.apis.get(apiName);
-    if (!connection) {
+    const api = this.apis.get(apiName);
+    if (!api) {
       return buildKyrApiResponseObj({ error: `${apiName} not found!` });
     }
-    return await connection.postRequest(targetURL, reqBody);
-  }
-
-  /**
-   *  @method Used to run the connect() method of all stored connections
-   *  @returns void
-   */
-  async connectAllApis(): Promise<KyrApiResponse<null>[]> {
-    let responses: KyrApiResponse<null>[] = [];
-    for (const api of this.apis.values()) {
-      const connection = await api.connect();
-      if (!connection) {
-        responses.push(buildKyrApiResponseObj({ error: `${api.name} not connected!` }));
-      }
-      responses.push(buildKyrApiResponseObj({ message: `${api.name} connected!` }));
-    }
-    return responses;
+    return await api.postRequest(targetURL, reqBody);
   }
 
   /**
@@ -96,11 +90,7 @@ export class KyrApiManager {
     if (!api) {
       return buildKyrApiResponseObj({ error: `${apiName} not found!` });
     }
-    const connection = await api.connect();
-    if (!connection) {
-      return buildKyrApiResponseObj({ error: `${api.name} not connected!` });
-    }
-    return buildKyrApiResponseObj({ message: `${api.name} connected!` });
+    return await api.connect();
   }
 }
 
@@ -120,14 +110,7 @@ class KyrApi {
   connectionIsActive = false;
   connectionAttempts = 0;
 
-  constructor(
-    public name: string,
-    public address: URL,
-    private accessKey: string,
-    public getReqTimeoutMS: number,
-    public postReqTimeoutMs: number,
-    private maxConnectAttemps: number,
-  ) {}
+  constructor(private config: KyrApiConfig) {}
 
   /**
    *  @returns The headers object for this class instance
@@ -135,7 +118,7 @@ class KyrApi {
    */
   private getHeaders(): Record<string, string> {
     return {
-      Authorization: this.accessKey,
+      Authorization: this.config.accessKey,
       "Content-Type": "application/json",
     };
   }
@@ -147,14 +130,14 @@ class KyrApi {
    */
   async getRequest<T>(targetURL: URL): Promise<KyrApiResponse<T>> {
     if (!this.connectionIsActive) {
-      return buildKyrApiResponseObj({ error: `${this.name} not active` });
+      return buildKyrApiResponseObj({ error: `${this.config.name} not active` });
     }
     let response: Response;
     try {
       response = await fetch(targetURL, {
         method: "GET",
         headers: this.getHeaders(),
-        signal: AbortSignal.timeout(this.getReqTimeoutMS),
+        signal: AbortSignal.timeout(this.config.getReqTimeoutMs),
       });
     } catch (err) {
       return buildKyrApiResponseObj({ error: String(err) });
@@ -162,7 +145,7 @@ class KyrApi {
     const responseObj = (await response.json()) as KyrApiResponse<T>;
     if (!response.ok) {
       return buildKyrApiResponseObj({
-        error: `Error ${this.name} GET Req:\nTarget: ${targetURL}\nStatus: ${response.status}\nError: ${responseObj.error ?? "Unknown Error"}`,
+        error: `Error ${this.config.name} GET Req:\nTarget: ${targetURL}\nStatus: ${response.status}\nError: ${responseObj.error ?? "Unknown Error"}`,
       });
     }
     return responseObj;
@@ -175,14 +158,14 @@ class KyrApi {
    */
   async postRequest<T>(targetURL: URL, reqBody?: Record<string, string>): Promise<KyrApiResponse<T>> {
     if (!this.connectionIsActive) {
-      return buildKyrApiResponseObj({ error: `${this.name} not active` });
+      return buildKyrApiResponseObj({ error: `${this.config.name} not active` });
     }
     let response: Response;
     try {
       response = await fetch(targetURL, {
         method: "POST",
         headers: this.getHeaders(),
-        signal: AbortSignal.timeout(this.postReqTimeoutMs),
+        signal: AbortSignal.timeout(this.config.postReqTimeoutMs),
         ...(reqBody !== undefined && { body: JSON.stringify(reqBody) }),
       });
     } catch (err) {
@@ -191,7 +174,7 @@ class KyrApi {
     const responseObj = (await response.json()) as KyrApiResponse<T>;
     if (!response.ok) {
       return buildKyrApiResponseObj({
-        error: `Error ${this.name} POST Req:\nTarget: ${targetURL}\nStatus: ${response.status}\nError: ${responseObj.error ?? "Unknown Error"}`,
+        error: `Error ${this.config.name} POST Req:\nTarget: ${targetURL}\nStatus: ${response.status}\nError: ${responseObj.error ?? "Unknown Error"}`,
       });
     }
     return responseObj;
@@ -201,39 +184,27 @@ class KyrApi {
    * @method Used to attempt a connection to the API - WARNING: There is no try/catch on this method, error handling needs to be done at a higher level
    * @returns A Promise<boolean> depending on whether the connection attempt was successful or not
    */
-  async connect(): Promise<boolean> {
-    for (let i = 0; i < this.maxConnectAttemps; i++) {
-      const targetURL = new URL(`/connect`, this.address);
+  async connect(): Promise<KyrApiResponse<null>> {
+    for (let i = 0; i < this.config.maxConnectAttempts; i++) {
+      const targetURL = new URL(`/connect`, this.config.address);
       let response = await fetch(targetURL, {
         method: "GET",
         headers: this.getHeaders(),
-        signal: AbortSignal.timeout(this.getReqTimeoutMS),
+        signal: AbortSignal.timeout(this.config.getReqTimeoutMs),
       });
       if (response.ok) {
         this.connectionAttempts = 0;
         this.connectionIsActive = true;
-        return true;
+        return buildKyrApiResponseObj({ message: `${this.config.name} connected successfully` });
       }
       this.connectionAttempts += 1;
-      if (i < this.maxConnectAttemps - 1) {
+      if (i < this.config.maxConnectAttempts - 1) {
         await sleepForSeconds(60);
       }
     }
-    return false;
+    return buildKyrApiResponseObj({ error: `${this.config.name} could not connect` });
   }
 }
-
-// ---------
-// - TYPES -
-// ---------
-/**
- * Represents a repsonse object from KYR API's
- */
-export type KyrApiResponse<T> = {
-  message: string | undefined;
-  error: string | undefined;
-  data: T | undefined;
-};
 
 // -------------
 // - FUNCTIONS -
