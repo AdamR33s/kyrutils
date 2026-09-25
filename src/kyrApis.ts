@@ -59,7 +59,7 @@ export class KyrApiManager {
    *  @param targetURL The target route of the API
    *  @returns A KyrApiResponse<T> object standardized for KYR API's
    */
-  async getRequest(apiName: string, targetRoute: string): Promise<KyrApiResponse<null>> {
+  async getRequest<T>(apiName: string, targetRoute: string): Promise<KyrApiResponse<T>> {
     const api = this.apis.get(apiName);
     if (!api) {
       return buildKyrApiResponseObj({ error: `${apiName} not found!` });
@@ -73,11 +73,11 @@ export class KyrApiManager {
    *  @param targetURL The target route of the API
    *  @returns A KyrApiResponse<T> object standardized for KYR API's
    */
-  async postRequest(
+  async postRequest<T>(
     apiName: string,
     targetRoute: string,
     reqBody?: Record<string, string>,
-  ): Promise<KyrApiResponse<null>> {
+  ): Promise<KyrApiResponse<T>> {
     const api = this.apis.get(apiName);
     if (!api) {
       return buildKyrApiResponseObj({ error: `${apiName} not found!` });
