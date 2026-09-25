@@ -3,7 +3,7 @@ export { buildTar } from "./kyrTarBuilder.js";
 
 export { KyrApiManager } from "./kyrApis.js";
 export type { KyrApiConfig, KyrApiResponse } from "./kyrApis.js";
-export { buildKyrApiResponseObj } from "./kyrApis.js";
+export { buildKyrApiResponse as buildKyrApiResponseObj } from "./kyrApis.js";
 
 export {
   getRandUuid,

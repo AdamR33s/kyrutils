@@ -84,6 +84,9 @@ Return a filesystem-friendly date-stamp ("en-gb") from a String | Number | Date
 
 # PREVIOUS VERSION NOTES
 
+### kyrUtils v3.7.0
+- Adjusted KyrApiResponse<T> to be a DU
+
 ### kyrUtils v3.6.2
 - Connection manager return type changed to restore generics
 
