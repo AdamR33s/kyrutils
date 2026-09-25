@@ -13,17 +13,17 @@ export type KyrApiResponse<T> = {
  * Utility function for building a KYR API repsonse object
  */
 export function buildKyrApiResponseObj<T>({
-  responseMessage,
-  responseError,
-  responseData,
+  message,
+  error,
+  data,
 }:  {
-  responseMessage?: string,
-  responseError?: string,
-  responseData?: T,
+  message?: string,
+  error?: string,
+  data?: T,
 }): KyrApiResponse<T> {
   return {
-    message: responseMessage ?? undefined,
-    error: responseError ?? undefined,
-    data: responseData ?? undefined,
+    message,
+    error,
+    data,
   };
 }

@@ -85,6 +85,9 @@ Return a filesystem-friendly date-stamp ("en-gb") from a String | Number | Date
 # PREVIOUS VERSION NOTES
 
 ### kyrUtils v3.2.2
+- Updated utility function for building API Response Obj with simplified names and code
+
+### kyrUtils v3.2.2
 - Updated utility function for building API Response Obj to accept options object for building with named fields
 
 ### kyrUtils v3.2.1
