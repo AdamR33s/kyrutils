@@ -1,9 +1,9 @@
 export type { TarBuildOptions } from "./kyrTarBuilder.js";
 export { buildTar } from "./kyrTarBuilder.js";
 
-export { KyrApiConnectionsManager, KyrApiConnection } from "./kyrApis.js"
-export type { KyrApiResponse } from "./kyrApis.js"
-export { buildKyrApiResponseObj } from "./kyrApis.js"
+export { KyrApiManager } from "./kyrApis.js";
+export type { KyrApiResponse } from "./kyrApis.js";
+export { buildKyrApiResponseObj } from "./kyrApis.js";
 
 export {
   getRandUuid,
