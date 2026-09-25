@@ -2,16 +2,6 @@ import { randomUUID } from "crypto";
 
 /**
  *
- * Represents a repsonse object from KYR API's
- */
-export type KyrApiResponse<T> = {
-  message: string | undefined;
-  error: string | undefined;
-  data: T | undefined;
-}
-
-/**
- *
  * @returns A random string identifier
  */
 export function getRandUuid(): string {

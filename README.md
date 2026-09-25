@@ -29,6 +29,21 @@ export type TarBuildOptions = {
 };
 ```
 
+
+### buildKyrApiResponseObj<T>()
+This builder function is a utility function for building response objects aligned to KYR's internal network structure.
+
+### KyrApiResponse<T>
+This is the typed object for responses.
+```cs
+export type KyrApiResponse<T> = {
+  message: string | undefined;
+  error: string | undefined;
+  data: T | undefined;
+}
+```
+
+
 #### Tar(Zst)Builder - Project Structure
 Loose suggested structure to use the buildTar() utility for rapid server deployment via a .tar.zst archive.
 ```text
@@ -66,22 +81,65 @@ Return a UI-friendly date-stamp ("en-gb") from a String | Number | Date
 ### dateTimeFSString()
 Return a filesystem-friendly date-stamp ("en-gb") from a String | Number | Date
 
-# LATEST UPDATE
-V3.0.0 - I've removed the fixed dir options for dist and made this optional like the others. You can now use this for partial deployments as well as full applications. I've also updated the function and object notes so they are clearer.
 
 # PREVIOUS VERSION NOTES
 
-### kyrUtils v1.0.0
-- Project Tar Building working for S.C.a.R.S and CM
+### kyrUtils v3.2.1
+- Added utility function for building API Response Obj
 
-### kyrUtils v1.1.0
-- Update to grab project file (package & package-lock)
+### kyrUtils v3.1.1
+- Added generic KyrApiResponse type for wrapping custom API responses
 
-### kyrUtils v1.2.0
-- Added additional Dir's list option
+### kyrUtils v3.0.1
+- adjusted the collection for additional dirs to preserve parent folder provided in path when building the archive
 
-### kyrUtilsInternal v1.3.0
-- Changed name to kyrUtilsInternal to allow public repo
+### kyrUtils v3.0.0
+- Dist folder now optional and dir adjustable
+- allows custom/part deployment scripts
+
+### kyrUtils v2.1.1
+- Fix an issue with files in dataDir being filtered out incorrectly
+
+### kyrUtils v2.1.0
+- Removed projFiles collection (move package files to dist through your script!)
+
+### kyrUtils v2.0.9
+- /prisma now collected indiscriminately 
+
+### kyrUtils v2.0.8
+- Bug fix for Prisma versions 7.x (Grabbing prisma.config.ts) from project root
+- Version notes added to readme
+
+### kyrUtils v2.0.7
+- Added support for new Prisma versions 7.x
+
+### kyrUtils v2.0.6
+- Internal package manager changed to PNPM
+- Removed async from date functions
+- Removed async from tarBuild (refactored async compression function)
+- Added PNPM compatibility to buildTar filters (pnpm-lock.yaml & pnpm-workspace.yaml)
+
+### kyrUtils v2.0.5
+- Function names updated
+- Function descriptions updated
+
+### kyrUtils v2.0.4
+- Readme updated
+
+### kyrUtils v2.0.3
+- Readme updated
+
+### kyrUtils v2.0.2
+- Fixed import and require definitions
+- Function names updated
+- Function descriptions updated
+- Readme updated
+
+### kyrUtils v2.0.1
+- Readme update
+
+### kyrUtils v2.0.0
+- Package.json update
 
 ### kyrUtils v2.0.0
 - Changed name back 
@@ -92,56 +150,31 @@ V3.0.0 - I've removed the fixed dir options for dist and made this optional like
 - Cleaned dependencies
 - Added env override option to tar builder
 
-### kyrUtils v2.0.0
-- Package.json update
+### kyrUtilsInternal v1.3.0
+- Changed name to kyrUtilsInternal to allow public repo
 
-### kyrUtils v2.0.1
-- Readme update
+### kyrUtils v1.2.0
+- Added additional Dir's list option
 
-### kyrUtils v2.0.2
-- Fixed import and require definitions
-- Function names updated
-- Function descriptions updated
-- Readme updated
+### kyrUtils v1.1.0
+- Update to grab project file (package & package-lock)
 
-### kyrUtils v2.0.3
-- Readme updated
+### kyrUtils v1.0.0
+- Project Tar Building working for S.C.a.R.S and CM
 
-### kyrUtils v2.0.4
-- Readme updated
 
-### kyrUtils v2.0.5
-- Function names updated
-- Function descriptions updated
 
-### kyrUtils v2.0.6
-- Internal package manager changed to PNPM
-- Removed async from date functions
-- Removed async from tarBuild (refactored async compression function)
-- Added PNPM compatibility to buildTar filters (pnpm-lock.yaml & pnpm-workspace.yaml)
 
-### kyrUtils v2.0.7
-- Added support for new Prisma versions 7.x
 
-### kyrUtils v2.0.8
-- Bug fix for Prisma versions 7.x (Grabbing prisma.config.ts) from project root
-- Version notes added to readme
 
-### kyrUtils v2.0.9
-- /prisma now collected indiscriminately 
 
-### kyrUtils v2.1.0
-- Removed projFiles collection (move package files to dist through your script!)
 
-### kyrUtils v2.1.1
-- Fix an issue with files in dataDir being filtered out incorrectly
 
-### kyrUtils v3.0.0
-- Dist folder now optional and dir adjustable
-- allows custom/part deployment scripts
 
-### kyrUtils v3.0.1
-- adjusted the collection for additional dirs to preserve parent folder provided in path when building the archive
 
-### kyrUtils v3.1.1
-- Added generic KyrApiResponse type for wrapping custom API responses
+
+
+
+
+
+
