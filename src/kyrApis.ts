@@ -8,17 +8,17 @@ import { sleepForSeconds } from "./kyrTools.js";
  */
 export type KyrApiResponse<T> =
   | {
-    success: true;
-    message: string;
-    data: T;
-    error: undefined;
-  }
+      success: true;
+      message: string;
+      data: T;
+      error: undefined;
+    }
   | {
-    success: false;
-    message: undefined;
-    data: undefined;
-    error: string;
-  };
+      success: false;
+      message: undefined;
+      data: undefined;
+      error: string;
+    };
 
 /**
  * Represents a config object for the API Manager
@@ -73,7 +73,12 @@ export class KyrApiManager {
     return this.apis.delete(apiName);
   }
 
-  async request<T>(apiName: KyrApiName, method: string, targetRoute: string, reqBody?: Record<string, string>): Promise<KyrApiResponse<T>> {
+  async request<T>(
+    apiName: KyrApiName,
+    method: string,
+    targetRoute: string,
+    reqBody?: Record<string, string>,
+  ): Promise<KyrApiResponse<T>> {
     const api = this.apis.get(apiName);
     if (!api) {
       return buildKyrApiErrorResponse({ error: `${apiName} not found!` });
@@ -88,7 +93,7 @@ export class KyrApiManager {
    *  @returns A KyrApiResponse<T> object standardized for KYR API's
    */
   async getRequest<T>(apiName: KyrApiName, targetRoute: string): Promise<KyrApiResponse<T>> {
-    return this.request(apiName, 'GET', targetRoute, undefined)
+    return this.request(apiName, "GET", targetRoute, undefined);
   }
 
   /**
@@ -102,7 +107,7 @@ export class KyrApiManager {
     targetRoute: string,
     reqBody?: Record<string, string>,
   ): Promise<KyrApiResponse<T>> {
-    return this.request(apiName, 'POST', targetRoute, reqBody);
+    return this.request(apiName, "POST", targetRoute, reqBody);
   }
 
   /**
@@ -134,34 +139,34 @@ class KyrApi {
   connectionIsActive = false;
   connectionAttempts = 0;
 
-  constructor(private config: KyrApiConfig) { }
+  constructor(private config: KyrApiConfig) {}
 
   /**
    *  @returns The headers object for this class instance
    *
    */
-  private getHeaders(): Record<string, string> {
+  private _getHeaders(): Record<string, string> {
     return {
       Authorization: this.config.accessKey,
       "Content-Type": "application/json",
     };
   }
-  
+
   private async _handleFetchResponse<T>(response: Response): Promise<KyrApiResponse<T>> {
     if (!response.ok) {
-      let error = `Request failed with code ${response.status}`
+      let error = `Request failed with code ${response.status}`;
       try {
-        const json: unknown = await response.json()
-        if (typeof json == 'object' && json != null && 'error' in json && typeof json.error == 'string') {
+        const json: unknown = await response.json();
+        if (typeof json == "object" && json != null && "error" in json && typeof json.error == "string") {
           error = `Request failed with code ${response.status}: ${json.error.trim().slice(0, 400)}`;
         }
-      } catch { }
-      return buildKyrApiErrorResponse({ error })
+      } catch {}
+      return buildKyrApiErrorResponse({ error });
     }
     try {
       return (await response.json()) as KyrApiResponse<T>;
-    } catch(error) {
-      return buildKyrApiErrorResponse({ error: "Failed to read response.json(): " + String(error) })
+    } catch (error) {
+      return buildKyrApiErrorResponse({ error: "Failed to read response.json(): " + String(error) });
     }
   }
 
@@ -174,7 +179,7 @@ class KyrApi {
     try {
       response = await fetch(targetURL, {
         method: "GET",
-        headers: this.getHeaders(),
+        headers: this._getHeaders(),
         signal: AbortSignal.timeout(this.config.getReqTimeoutMs),
       });
     } catch (err) {
@@ -197,7 +202,7 @@ class KyrApi {
       try {
         const response = await fetch(targetURL, {
           method: "GET",
-          headers: this.getHeaders(),
+          headers: this._getHeaders(),
           signal: AbortSignal.timeout(this.config.getReqTimeoutMs),
         });
         responseObj = await this._handleFetchResponse<null>(response);
