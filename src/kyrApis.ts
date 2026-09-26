@@ -8,17 +8,17 @@ import { sleepForSeconds } from "./kyrTools.js";
  */
 export type KyrApiResponse<T> =
   | {
-      success: true;
-      message: string;
-      data: T | undefined;
-      error: undefined;
-    }
+    success: true;
+    message: string;
+    data: T;
+    error: undefined;
+  }
   | {
-      success: false;
-      message: undefined;
-      data: undefined;
-      error: string;
-    };
+    success: false;
+    message: undefined;
+    data: undefined;
+    error: string;
+  };
 
 /**
  * Represents a config object for the API Manager
@@ -234,7 +234,7 @@ class KyrApi {
 /**
  * Utility function for building a KYR API repsonse object conveniently
  */
-export function buildKyrApiResponse<T>({ message, data }: { message: string; data?: T }): KyrApiResponse<T> {
+export function buildKyrApiResponse<T>({ message, data }: { message: string; data: T }): KyrApiResponse<T> {
   return {
     success: true,
     message,
