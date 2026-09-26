@@ -23,8 +23,20 @@ export type KyrApiResponse<T> =
 /**
  * Represents a config object for the API Manager
  */
+export type KyrApiName =
+  | "mainApi"
+  | "socialsApi"
+  | "tarkovApi"
+  | "atomBot"
+  | "communityManager"
+  | "scars"
+  | "monitorBot";
+
+/**
+ * Represents a config object for the API Manager
+ */
 export type KyrApiConfig = {
-  name: string;
+  name: KyrApiName;
   address: URL;
   accessKey: string;
   getReqTimeoutMs: number;
@@ -40,7 +52,7 @@ export type KyrApiConfig = {
  * @param apis A private map for storing connection instances by their name
  */
 export class KyrApiManager {
-  private apis = new Map<string, KyrApi>();
+  private apis = new Map<KyrApiName, KyrApi>();
 
   /**
    *  @method Used to add APIs to the Manager's Map
@@ -57,7 +69,7 @@ export class KyrApiManager {
    *  @param apiName The API name to be removed
    *  @returns boolean, true if removed and false if the key doesn't exist
    */
-  removeApi(apiName: string): boolean {
+  removeApi(apiName: KyrApiName): boolean {
     return this.apis.delete(apiName);
   }
 
@@ -67,7 +79,7 @@ export class KyrApiManager {
    *  @param targetURL The target route of the API
    *  @returns A KyrApiResponse<T> object standardized for KYR API's
    */
-  async getRequest<T>(apiName: string, targetRoute: string): Promise<KyrApiResponse<T>> {
+  async getRequest<T>(apiName: KyrApiName, targetRoute: string): Promise<KyrApiResponse<T>> {
     const api = this.apis.get(apiName);
     if (!api) {
       return buildKyrApiErrorResponse({ error: `${apiName} not found!` });
@@ -82,7 +94,7 @@ export class KyrApiManager {
    *  @returns A KyrApiResponse<T> object standardized for KYR API's
    */
   async postRequest<T>(
-    apiName: string,
+    apiName: KyrApiName,
     targetRoute: string,
     reqBody?: Record<string, string>,
   ): Promise<KyrApiResponse<T>> {
@@ -94,10 +106,10 @@ export class KyrApiManager {
   }
 
   /**
-   *  @method Used to run the connect() method of all stored connections
-   *  @returns void
+   *  @method Used to attempt the connection on the API
+   *  @returns A KyrApiResponse<T> object standardized for KYR API's
    */
-  async connectApi(apiName: string): Promise<KyrApiResponse<null>> {
+  async connectApi(apiName: KyrApiName): Promise<KyrApiResponse<null>> {
     const api = this.apis.get(apiName);
     if (!api) {
       return buildKyrApiErrorResponse({ error: `${apiName} not found!` });
@@ -153,14 +165,9 @@ class KyrApi {
         signal: AbortSignal.timeout(this.config.getReqTimeoutMs),
       });
     } catch (err) {
-      return buildKyrApiErrorResponse({ error: String(err) });
+      return buildKyrApiErrorResponse({ error: `Fetch error in GET Req: ` + err });
     }
     const responseObj = (await response.json()) as KyrApiResponse<T>;
-    if (!response.ok) {
-      return buildKyrApiErrorResponse({
-        error: `Error ${this.config.name} GET Req:\nTarget: ${targetURL}\nStatus: ${response.status}\nError: ${responseObj.error ?? "Unknown Error"}`,
-      });
-    }
     return responseObj;
   }
 
@@ -182,34 +189,35 @@ class KyrApi {
         signal: AbortSignal.timeout(this.config.postReqTimeoutMs),
         ...(reqBody !== undefined && { body: JSON.stringify(reqBody) }),
       });
-    } catch (err) {
-      return buildKyrApiErrorResponse({ error: String(err) });
+    } catch (error) {
+      return buildKyrApiErrorResponse({ error: `Fetch error in POST Req: ` + error });
     }
     const responseObj = (await response.json()) as KyrApiResponse<T>;
-    if (!response.ok) {
-      return buildKyrApiErrorResponse({
-        error: `Error ${this.config.name} POST Req:\nTarget: ${targetURL}\nStatus: ${response.status}\nError: ${responseObj.error ?? "Unknown Error"}`,
-      });
-    }
     return responseObj;
   }
 
   /**
-   * @method Used to attempt a connection to the API - WARNING: There is no try/catch on this method, error handling needs to be done at a higher level
-   * @returns A Promise<boolean> depending on whether the connection attempt was successful or not
+   * @method Used to attempt a connection to the API
+   * @returns A KyrApiResponse<T> object standardized for KYR API's
    */
   async connect(): Promise<KyrApiResponse<null>> {
     for (let i = 0; i < this.config.maxConnectAttempts; i++) {
       const targetURL = new URL(`/connect`, this.config.address);
-      let response = await fetch(targetURL, {
-        method: "GET",
-        headers: this.getHeaders(),
-        signal: AbortSignal.timeout(this.config.getReqTimeoutMs),
-      });
-      if (response.ok) {
+      let response: Response;
+      try {
+        response = await fetch(targetURL, {
+          method: "GET",
+          headers: this.getHeaders(),
+          signal: AbortSignal.timeout(this.config.getReqTimeoutMs),
+        });
+      } catch (error) {
+        return buildKyrApiErrorResponse({ error: `Fetch error in connect method: ` + error });
+      }
+      const responseObj = (await response.json()) as KyrApiResponse<null>;
+      if (responseObj.success) {
         this.connectionAttempts = 0;
         this.connectionIsActive = true;
-        return buildKyrApiResponse({ message: `${this.config.name} connected successfully` });
+        return responseObj;
       }
       this.connectionAttempts += 1;
       if (i < this.config.maxConnectAttempts - 1) {
