@@ -24,13 +24,13 @@ export type KyrApiResponse<T> =
  * Represents a config object for the API Manager
  */
 export type KyrApiName =
-  | "mainApi"
-  | "socialsApi"
-  | "tarkovApi"
-  | "atomBot"
-  | "communityManager"
+  | "mainapi"
+  | "socialsapi"
+  | "tarkovapi"
+  | "atombot"
+  | "communitymanager"
   | "scars"
-  | "monitorBot";
+  | "monitorbot";
 
 /**
  * Represents a config object for the API Manager

@@ -84,6 +84,9 @@ Return a filesystem-friendly date-stamp ("en-gb") from a String | Number | Date
 
 # PREVIOUS VERSION NOTES
 
+### kyrUtils v3.10.0
+- Fixed export error
+
 ### kyrUtils v3.9.0
 - Adjusted error handling in methods
 - Restructured methods and Manager wrapper
