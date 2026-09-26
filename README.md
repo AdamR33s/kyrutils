@@ -84,6 +84,9 @@ Return a filesystem-friendly date-stamp ("en-gb") from a String | Number | Date
 
 # PREVIOUS VERSION NOTES
 
+### kyrUtils v3.12.0
+- Extended Data from POJO to support field expansion
+
 ### kyrUtils v3.11.0
 - Simplified response DU
 

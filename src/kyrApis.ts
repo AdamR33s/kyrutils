@@ -6,10 +6,10 @@ import { sleepForSeconds } from "./kyrTools.js";
 /**
  * Represents a repsonse object from KYR API's
  */
-export type KyrApiResponse<T> =
+export type KyrApiResponse<Data extends {}> =
   | {
       success: true;
-      data: T;
+      data: Data;
       error: undefined;
     }
   | {
@@ -71,17 +71,17 @@ export class KyrApiManager {
     return this.apis.delete(apiName);
   }
 
-  async request<T>(
+  async request<Data extends {}>(
     apiName: KyrApiName,
     method: string,
     targetRoute: string,
     reqBody?: Record<string, string>,
-  ): Promise<KyrApiResponse<T>> {
+  ): Promise<KyrApiResponse<Data>> {
     const api = this.apis.get(apiName);
     if (!api) {
       return buildKyrApiErrorResponse({ error: `${apiName} not found!` });
     }
-    return await api.request(method, targetRoute, reqBody);
+    return await api.request<Data>(method, targetRoute, reqBody);
   }
 
   /**
@@ -90,7 +90,7 @@ export class KyrApiManager {
    *  @param targetURL The target route of the API
    *  @returns A KyrApiResponse<T> object standardized for KYR API's
    */
-  async getRequest<T>(apiName: KyrApiName, targetRoute: string): Promise<KyrApiResponse<T>> {
+  async getRequest<Data extends {}>(apiName: KyrApiName, targetRoute: string): Promise<KyrApiResponse<Data>> {
     return this.request(apiName, "GET", targetRoute, undefined);
   }
 
@@ -100,11 +100,11 @@ export class KyrApiManager {
    *  @param targetURL The target route of the API
    *  @returns A KyrApiResponse<T> object standardized for KYR API's
    */
-  async postRequest<T>(
+  async postRequest<Data extends {}>(
     apiName: KyrApiName,
     targetRoute: string,
     reqBody?: Record<string, string>,
-  ): Promise<KyrApiResponse<T>> {
+  ): Promise<KyrApiResponse<Data>> {
     return this.request(apiName, "POST", targetRoute, reqBody);
   }
 
@@ -112,7 +112,7 @@ export class KyrApiManager {
    *  @method Used to attempt the connection on the API
    *  @returns A KyrApiResponse<T> object standardized for KYR API's
    */
-  async connectApi(apiName: KyrApiName): Promise<KyrApiResponse<null>> {
+  async connectApi(apiName: KyrApiName): Promise<KyrApiResponse<{ message: string }>> {
     const api = this.apis.get(apiName);
     if (!api) {
       return buildKyrApiErrorResponse({ error: `${apiName} not found!` });
@@ -150,7 +150,7 @@ class KyrApi {
     };
   }
 
-  private async _handleFetchResponse<T>(response: Response): Promise<KyrApiResponse<T>> {
+  private async _handleFetchResponse<Data extends {}>(response: Response): Promise<KyrApiResponse<Data>> {
     if (!response.ok) {
       let error = `Request failed with code ${response.status}`;
       try {
@@ -162,13 +162,17 @@ class KyrApi {
       return buildKyrApiErrorResponse({ error });
     }
     try {
-      return (await response.json()) as KyrApiResponse<T>;
+      return (await response.json()) as KyrApiResponse<Data>;
     } catch (error) {
       return buildKyrApiErrorResponse({ error: "Failed to read response.json(): " + String(error) });
     }
   }
 
-  async request<T>(targetRoute: string, method: string, body?: Record<string, string>): Promise<KyrApiResponse<T>> {
+  async request<Data extends {}>(
+    method: string,
+    targetRoute: string,
+    body?: Record<string, string>,
+  ): Promise<KyrApiResponse<Data>> {
     if (!this.connectionIsActive) {
       return buildKyrApiErrorResponse({ error: `${this.config.name} not active` });
     }
@@ -176,34 +180,35 @@ class KyrApi {
     let response: Response;
     try {
       response = await fetch(targetURL, {
-        method: "GET",
+        method,
         headers: this._getHeaders(),
-        signal: AbortSignal.timeout(this.config.getReqTimeoutMs),
+        body: body ? JSON.stringify(body) : undefined,
+        signal: AbortSignal.timeout(method === "GET" ? this.config.getReqTimeoutMs : this.config.postReqTimeoutMs),
       });
     } catch (err) {
       return buildKyrApiErrorResponse({ error: `Fetch error in GET Req: ` + err });
     }
-    return await this._handleFetchResponse<T>(response);
+    return await this._handleFetchResponse<Data>(response);
   }
 
   /**
    * @method Used to attempt a connection to the API
    * @returns A KyrApiResponse<T> object standardized for KYR API's
    */
-  async connect(): Promise<KyrApiResponse<null>> {
+  async connect(): Promise<KyrApiResponse<{ message: string }>> {
     for (let i = 0; ; i++) {
       if (i > 0) {
         await sleepForSeconds(60);
       }
       const targetURL = new URL(`/connect`, this.config.address);
-      let responseObj: KyrApiResponse<null>;
+      let responseObj: KyrApiResponse<{ message: string }>;
       try {
         const response = await fetch(targetURL, {
           method: "GET",
           headers: this._getHeaders(),
           signal: AbortSignal.timeout(this.config.getReqTimeoutMs),
         });
-        responseObj = await this._handleFetchResponse<null>(response);
+        responseObj = await this._handleFetchResponse<{ message: string }>(response);
       } catch (error) {
         responseObj = buildKyrApiErrorResponse({ error: `Fetch error in connect method: ` + error });
       }
@@ -227,7 +232,7 @@ class KyrApi {
 /**
  * Utility function for building a KYR API repsonse object conveniently
  */
-export function buildKyrApiResponse<T>({ data }: { data: T }): KyrApiResponse<T> {
+export function buildKyrApiResponse<Data extends {}>({ data }: { data: Data }): KyrApiResponse<Data> {
   return {
     success: true,
     data,
@@ -238,7 +243,7 @@ export function buildKyrApiResponse<T>({ data }: { data: T }): KyrApiResponse<T>
 /**
  * Utility function for building a KYR API error repsonse object conveniently
  */
-export function buildKyrApiErrorResponse<T>({ error }: { error: string }): KyrApiResponse<T> {
+export function buildKyrApiErrorResponse<Data extends {}>({ error }: { error: string }): KyrApiResponse<Data> {
   return {
     success: false,
     data: undefined,
