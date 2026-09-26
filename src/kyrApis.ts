@@ -158,8 +158,11 @@ class KyrApi {
       } catch { }
       return buildKyrApiErrorResponse({ error })
     }
-    const responseObj = (await response.json()) as KyrApiResponse<T>;
-    return responseObj;
+    try {
+      return (await response.json()) as KyrApiResponse<T>;
+    } catch(error) {
+      return buildKyrApiErrorResponse({ error: "Failed to read response.json(): " + String(error) })
+    }
   }
 
   async request<T>(targetRoute: string, method: string, body?: Record<string, string>): Promise<KyrApiResponse<T>> {
