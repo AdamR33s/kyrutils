@@ -9,13 +9,11 @@ import { sleepForSeconds } from "./kyrTools.js";
 export type KyrApiResponse<T> =
   | {
       success: true;
-      message: string;
       data: T;
       error: undefined;
     }
   | {
       success: false;
-      message: undefined;
       data: undefined;
       error: string;
     };
@@ -229,12 +227,11 @@ class KyrApi {
 /**
  * Utility function for building a KYR API repsonse object conveniently
  */
-export function buildKyrApiResponse<T>({ message, data }: { message: string; data: T }): KyrApiResponse<T> {
+export function buildKyrApiResponse<T>({ data }: { data: T }): KyrApiResponse<T> {
   return {
     success: true,
-    message,
-    error: undefined,
     data,
+    error: undefined,
   };
 }
 
@@ -244,8 +241,7 @@ export function buildKyrApiResponse<T>({ message, data }: { message: string; dat
 export function buildKyrApiErrorResponse<T>({ error }: { error: string }): KyrApiResponse<T> {
   return {
     success: false,
-    message: undefined,
-    error: error,
     data: undefined,
+    error: error,
   };
 }
