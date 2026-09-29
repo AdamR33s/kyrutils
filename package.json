@@ -15,12 +15,12 @@
     "build": "tsdown"
   },
   "devDependencies": {
-    "@types/node": "^24.1.0",
-    "tsdown": "^0.22.0",
-    "typescript": "^5.9.3"
+    "@types/node": "26.6.3",
+    "tsdown": "0.22.0",
+    "typescript": "5.9.3"
   },
   "private": false,
   "dependencies": {
-    "tar": "^7.5.13"
+    "tar": "7.5.13"
   }
 }
