@@ -17,7 +17,7 @@
   "devDependencies": {
     "@types/node": "26.6.3",
     "tsdown": "0.22.0",
-    "typescript": "5.9.3"
+    "typescript": "6.0.3"
   },
   "private": false,
   "dependencies": {
